@@ -936,6 +936,9 @@ class ConversationWidget(WidgetBase):
         elif text.startswith('/image') and len(text.split(' ')) == 2:
             # Temporary UI for testing image uploads
             filename = text.split(' ')[1]
+            if filename.startswith('~/'):
+                home = os.getenv('HOME')
+                filename = filename.replace('~', home, 1)
             try:
                 image_file = open(filename, 'rb')
             except FileNotFoundError:
