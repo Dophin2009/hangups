@@ -1073,11 +1073,11 @@ NOTIFIER_TYPES = {
 }
 
 
-def get_notifier(notification_type, disable_notifications):
+def get_notifier(notification_type, disable_notifications, expire_timeout=None):
     if disable_notifications:
         return notifier.Notifier()
     else:
-        return NOTIFIER_TYPES[notification_type]()
+        return NOTIFIER_TYPES[notification_type](expire_timeout)
 
 
 def main():
@@ -1152,6 +1152,8 @@ def main():
                            choices=sorted(NOTIFIER_TYPES.keys()),
                            default='default',
                            help='type of notifications to create')
+    notification_group.add('--notification-timeout',
+                           help='time in milliseconds for notifications to close')
 
     # add color scheme options
     col_group = parser.add_argument_group('Colors')
@@ -1203,7 +1205,8 @@ def main():
     }
 
     notifier_ = get_notifier(
-        args.notification_type, args.disable_notifications
+        args.notification_type, args.disable_notifications,
+        args.notification_timeout,
     )
 
     try:

@@ -29,12 +29,15 @@ class Notifier:
 class DefaultNotifier(Notifier):
     """Notifier that picks the best implementation for the current platform."""
 
-    def __init__(self):
+    def __init__(self, expire_timeout=None):
         # TODO: Make this smarter.
         if sys.platform == 'darwin':
             self._notifier = AppleNotifier()
         else:
-            self._notifier = DbusNotifier()
+            if expire_timeout is None:
+                self._notifier = DbusNotifier()
+            else:
+                self._notifier = DbusNotifier(expire_timeout)
 
     def send(self, notification):
         self._notifier.send(notification)
@@ -60,18 +63,20 @@ class DbusNotifier(Notifier):
         'org.freedesktop.Notifications', '--object-path',
         '/org/freedesktop/Notifications', '--method',
         'org.freedesktop.Notifications.Notify', 'hangups', '{replaces_id}', '',
-        '{summary}', '{body}', '[]', '{{}}', ' -1'
+        '{summary}', '{body}', '[]', '{{}}', ' {timeout}'
     ]
     RESULT_RE = re.compile(r'\(uint32 ([\d]+),\)')
 
-    def __init__(self):
+    def __init__(self, expire_timeout):
         self._replaces_id = 0
+        self._expire_timeout = -1 if expire_timeout is None else expire_timeout
 
     def send(self, notification):
         output = _run_command(self.NOTIFY_CMD, dict(
             summary=self._escape(notification.title),
             body=self._escape(notification.message),
             replaces_id=self._replaces_id,
+            timeout=self._expire_timeout,
         ))
         try:
             self._replaces_id = self.RESULT_RE.match(output).groups()[0]
