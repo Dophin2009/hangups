@@ -3,11 +3,8 @@ import os
 import sys
 
 
-# TODO: Switch to ReadTheDocs YAML config to get a newer Python
-if sys.version_info < (3, 5, 3) and not os.getenv('READTHEDOCS'):
-    # This is the minimum version which has support for `async def`/`await`/
-    # `async with` syntax.
-    raise RuntimeError("hangups requires Python 3.5.3+")
+if sys.version_info < (3, 6):
+    raise RuntimeError("hangups requires Python 3.6+")
 
 
 # Find __version__ without import that requires dependencies to be installed:
@@ -26,7 +23,7 @@ with open('README.rst') as f:
 # especially for end-users (non-developers) who use pip to install hangups.
 install_requires = [
     'ConfigArgParse>=0.11.0,<2',
-    'aiohttp>=3.3,<4',
+    'aiohttp>=3.7,<4',
     'async-timeout>=2,<4',
     'appdirs>=1.4,<1.5',
     'readlike>=0.1.2,<0.2',
@@ -55,7 +52,6 @@ setup(
         'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
